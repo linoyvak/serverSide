@@ -1,0 +1,253 @@
+@baseUrl = http://localhost:3000
+@email = oran@example.com
+@password = test123456
+@username = orna
+@googleCredential = YOUR_GOOGLE_ID_TOKEN
+
+### Login to get tokens
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+###
+@accessToken = {{login.response.body.accessToken}}
+@refreshToken = {{login.response.body.refreshToken}}
+
+### Create a post
+# @name createPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "owner": "Shoval",
+    "title": "My first post",
+    "content": "This is my first post!"
+}
+
+###
+@postId = {{createPost.response.body._id}}
+
+### Get all posts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+
+### Get a post by ID
+GET {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+### Get posts by owner
+GET {{baseUrl}}/posts?owner=Lee
+Authorization: Bearer {{accessToken}}
+
+### Update a post
+PUT {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "owner": "Shoval", 
+    "title": "updated Post", 
+    "content": "Updated"
+}
+
+### Delete a post
+DELETE {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### Create a Comment
+# @name createComment
+POST {{baseUrl}}/comments
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "postId": "{{postId}}", 
+  "comment": "This is a test comment",
+  "owner": "Test"
+}
+
+###
+@commentId = {{createComment.response.body._id}}
+
+### Get Comments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+
+### Get Comments ById
+GET {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+
+### Get Comments ByPostId
+GET {{baseUrl}}/comments?postId={{postId}}
+Authorization: Bearer {{accessToken}}
+
+### Delete Comments ById 
+DELETE {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+
+### Update Comments ById 
+PUT {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "postId": "{{postId}}",
+  "comment": "Updated Comment",
+  "owner": "Test"
+}
+
+### Refresh Token
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{refreshToken}}
+
+###
+@newAccessToken = {{refresh.response.body.accessToken}}
+@newRefreshToken = {{refresh.response.body.refreshToken}}
+
+### Logout
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}",
+    "username": "{{username}}"
+}
+
+### Test Authentication Flow ###
+
+### 1. Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}",
+    "username": "{{username}}"
+}
+
+### 2. Login with the registered user
+# @name loginTest
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+###
+@testAccessToken = {{loginTest.response.body.accessToken}}
+@testRefreshToken = {{loginTest.response.body.refreshToken}}
+
+### 3. Create a test post
+# @name createTestPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{testAccessToken}}
+
+{
+    "owner": "Test",
+    "title": "Test Post",
+    "content": "This is a test post"
+}
+
+###
+@testPostId = {{createTestPost.response.body._id}}
+
+### 4. Try accessing the created post
+GET {{baseUrl}}/posts/{{testPostId}}
+Authorization: Bearer {{testAccessToken}}
+
+### 5. Refresh token to get new access token
+# @name refreshTest
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{testRefreshToken}}
+
+###
+@newTestAccessToken = {{refreshTest.response.body.accessToken}}
+@newTestRefreshToken = {{refreshTest.response.body.refreshToken}}
+
+### 6. Try to reuse the same refresh token (should fail and invalidate all tokens)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{testRefreshToken}}
+
+### 7. Try to use the new refresh token after security breach (should fail)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{newTestRefreshToken}}
+
+### 8. Try to access protected route (should fail due to token invalidation)
+GET {{baseUrl}}/posts/{{testPostId}}
+Authorization: Bearer {{newTestAccessToken}}
+
+### 9. Login again to get new tokens
+# @name loginAfterBreach
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+###
+@finalAccessToken = {{loginAfterBreach.response.body.accessToken}}
+@finalRefreshToken = {{loginAfterBreach.response.body.refreshToken}}
+
+### 10. Test Logout Sequence
+# @name logoutTest
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{finalAccessToken}}
+
+### 11. Try to access protected route after logout (should fail)
+GET {{baseUrl}}/posts/{{testPostId}}
+Authorization: Bearer {{finalAccessToken}}
+
+### 12. Try to use refresh token after logout (should fail)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{finalRefreshToken}}
+
+### Google Sign-In
+# @name googleSignIn
+POST {{baseUrl}}/auth/googleSignIn
+Content-Type: application/json
+
+{
+    "credential": "{{googleCredential}}"
+}
+
+###
+@googleAccessToken = {{googleSignIn.response.body.accessToken}}
+@googleRefreshToken = {{googleSignIn.response.body.refreshToken}}
+
+### Use the access token from Google Sign-In to create a post
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{googleAccessToken}}
+
+{
+    "owner": "GoogleUser",
+    "title": "Google Sign-In Post",
+    "content": "This post was created using Google Sign-In!"
+}
+
+

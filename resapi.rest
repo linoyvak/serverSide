@@ -1,0 +1,190 @@
+@baseUrl = http://localhost:3000
+@email = tal@example.com
+@password = test123456
+@username = tal12
+@googleCredential = YOUR_GOOGLE_ID_TOKEN
+@useridid = 67e04c93c04c2fd893583d9e
+
+### 1️⃣ Register a New User
+# @name registerUser
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}",
+    "username": "{{username}}"
+}
+
+### 2️⃣ User Login
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### Extract Tokens
+@accessToken = {{loginUser.response.body.accessToken}}
+@refreshToken = {{loginUser.response.body.refreshToken}}
+
+### 3️⃣ User Logout
+# @name logoutUser
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### 4️⃣ User Login Again
+# @name loginUserAgain
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### Extract New Tokens
+@newAccessToken = {{loginUserAgain.response.body.accessToken}}
+@newRefreshToken = {{loginUserAgain.response.body.refreshToken}}
+
+### 5️⃣ Create a Post
+# @name createPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{newAccessToken}}
+
+{
+    "owner": "Shoval",
+    "title": "My first post",
+    "content": "This is my first post!"
+}
+
+### Extract Post ID
+@postId = {{createPost.response.body._id}}
+
+### 6️⃣ Create a Comment on the Post
+# @name createComment
+POST {{baseUrl}}/comments
+Content-Type: application/json
+Authorization: Bearer {{newAccessToken}}
+
+{
+  "postId": "{{postId}}", 
+  "comment": "This is a test comment",
+  "owner": "Test"
+}
+
+### Extract Comment ID
+@commentId = {{createComment.response.body._id}}
+
+### 7️⃣ Get the Created Post
+GET {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{newAccessToken}}
+
+### 8️⃣ Get Comments for the Post
+GET {{baseUrl}}/comments?postId={{postId}}
+Authorization: Bearer {{newAccessToken}}
+
+### 9️⃣ Delete the Comment
+DELETE {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{newAccessToken}}
+
+### 🔟 Delete the Post
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{newAccessToken}}
+
+### Like a Post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{newAccessToken}}
+
+### Unlike a Post
+# @name unlikePost
+POST {{baseUrl}}/posts/{{postId}}/unlike
+Authorization: Bearer {{newAccessToken}}
+
+### Get Likes for a Post
+# @name getLikes
+GET {{baseUrl}}/posts/{{postId}}/likes
+Authorization: Bearer {{newAccessToken}}
+
+### 1️⃣2️⃣ Test User Profile - Fetch Profile 
+# @name fetchUserProfile 
+GET {{baseUrl}}/user
+Authorization: Bearer {{newAccessToken}}
+
+
+
+### 1️⃣3️⃣ Test User Profile - Update Profile 
+# @name updateUserProfile 
+PUT {{baseUrl}}/user
+Content-Type: application/json 
+Authorization: Bearer {{newAccessToken}}
+
+{
+    "name": "Updated Name",
+    "profilePicture": "https://example.com/avatar.jpg",
+    "bio": "Updated Bio"
+}
+
+### 1️⃣4️⃣ Fetch Profile Again to Verify Updates 
+GET {{baseUrl}}/user/profile 
+Authorization: Bearer {{newAccessToken}}
+
+
+
+
+###if with cookies
+
+### 1️⃣ Register a New User
+# @name registerUser
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "testuser1@example.com",
+    "password": "password123",
+    "username": "testuser1"
+}
+
+### 2️⃣ Login User
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "testuser@example.com",
+    "password": "password123"
+}
+
+### 3️⃣ Access Protected Route with Access Token
+# @name accessProtected
+GET {{baseUrl}}/auth/updateProfile
+Cookie: accessToken={{loginUser.response.body.accessToken}}
+
+### 4️⃣ Refresh Tokens
+# @name refreshTokens
+POST {{baseUrl}}/auth/refresh
+Cookie: refreshToken={{loginUser.response.body.refreshToken}}
+
+### 5️⃣ Access Protected Route After Refresh
+# @name accessProtectedAfterRefresh
+GET {{baseUrl}}/auth/updateProfile
+Cookie: accessToken={{refreshTokens.response.body.cookies.accessToken}}
+
+### 6️⃣ Logout User
+# @name logoutUser
+POST {{baseUrl}}/auth/logout
+Cookie: accessToken={{loginUser.response.body.accessToken}}
+
+
+
+
+### checking get user by id noa new function
+
+### Get User by ID
+# @name getUserById
+GET {{baseUrl}}/user/getUserById?userId={{useridid}}
+Authorization: Bearer {{newAccessToken}}
