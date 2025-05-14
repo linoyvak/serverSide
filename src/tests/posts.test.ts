@@ -32,8 +32,8 @@ const testUser2 = {
 }
 
 const userInfo: UserInfo = {
-    email: "leebenshimon14@gmail.com",
-    username: "leebenshimon",
+    email: "linoyvak@gmail.com",
+    username: "linoyvak",
     password: "123456"
 }
 
@@ -53,7 +53,7 @@ afterAll(async () => {
 
 let postId = "";
 const testPost = {
-    "owner": "Lee",
+    "owner": "linoy",
     "title": "My first post",
     "content": "This is my first post!"
 };

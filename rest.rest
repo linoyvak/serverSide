@@ -25,7 +25,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "owner": "Shoval",
+    "owner": "linoy",
     "title": "My first post",
     "content": "This is my first post!"
 }

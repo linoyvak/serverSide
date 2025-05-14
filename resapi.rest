@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000
-@email = tal@example.com
+@email = linoy@example.com
 @password = test123456
-@username = tal12
+@username = linoyvak
 @googleCredential = YOUR_GOOGLE_ID_TOKEN
 @useridid = 67e04c93c04c2fd893583d9e
 
@@ -56,7 +56,7 @@ Content-Type: application/json
 Authorization: Bearer {{newAccessToken}}
 
 {
-    "owner": "Shoval",
+    "owner": "Linoy Vak",
     "title": "My first post",
     "content": "This is my first post!"
 }
@@ -73,7 +73,7 @@ Authorization: Bearer {{newAccessToken}}
 {
   "postId": "{{postId}}", 
   "comment": "This is a test comment",
-  "owner": "Test"
+  "owner": "Linoy Vak"
 }
 
 ### Extract Comment ID
@@ -115,8 +115,6 @@ Authorization: Bearer {{newAccessToken}}
 GET {{baseUrl}}/user
 Authorization: Bearer {{newAccessToken}}
 
-
-
 ### 1️⃣3️⃣ Test User Profile - Update Profile 
 # @name updateUserProfile 
 PUT {{baseUrl}}/user
@@ -124,7 +122,7 @@ Content-Type: application/json
 Authorization: Bearer {{newAccessToken}}
 
 {
-    "name": "Updated Name",
+    "name": "Linoy Vak",
     "profilePicture": "https://example.com/avatar.jpg",
     "bio": "Updated Bio"
 }
@@ -144,9 +142,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "testuser1@example.com",
+    "email": "linoyuser@example.com",
     "password": "password123",
-    "username": "testuser1"
+    "username": "linoyvak"
 }
 
 ### 2️⃣ Login User
@@ -155,7 +153,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "testuser@example.com",
+    "email": "linoyuser@example.com",
     "password": "password123"
 }
 
@@ -179,10 +177,7 @@ Cookie: accessToken={{refreshTokens.response.body.cookies.accessToken}}
 POST {{baseUrl}}/auth/logout
 Cookie: accessToken={{loginUser.response.body.accessToken}}
 
-
-
-
-### checking get user by id noa new function
+### checking get user by id linoy new function
 
 ### Get User by ID
 # @name getUserById
